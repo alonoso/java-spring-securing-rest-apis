@@ -20,18 +20,25 @@ public class ResolutionInitializer implements SmartInitializingSingleton {
         this.resolutions.save(new Resolution("Hang Christmas Lights", "user"));
 
         User user = new User("user", "{bcrypt}$2a$10$MywQEqdZFNIYnx.Ro/VQ0ulanQAl34B5xVjK2I/SDZNVGS5tHQ08W");
+        user.setFullName("User Userson");
         user.grantAuthority("resolution:read");
+        user.grantAuthority("user:read");
         this.users.save(user);
 
-        User hasred = new User("hasread", "{bcrypt}$2a$10$MywQEqdZFNIYnx.Ro/VQ0ulanQAl34B5xVjK2I/SDZNVGS5tHQ08W");
-        hasred.grantAuthority("resolution:read");
-        this.users.save(hasred);
+        User hasRead = new User("hasread", "{bcrypt}$2a$10$MywQEqdZFNIYnx.Ro/VQ0ulanQAl34B5xVjK2I/SDZNVGS5tHQ08W");
+        hasRead.setFullName("Has Read");
+        hasRead.grantAuthority("resolution:read");
+        hasRead.grantAuthority("hasread:read");
+        this.users.save(hasRead);
 
-        User haswrite = new User("haswrite","{bcrypt}$2a$10$MywQEqdZFNIYnx.Ro/VQ0ulanQAl34B5xVjK2I/SDZNVGS5tHQ08W");
-        haswrite.grantAuthority("resolution:write");
-        this.users.save(haswrite);
+        User hasWrite = new User("haswrite","{bcrypt}$2a$10$MywQEqdZFNIYnx.Ro/VQ0ulanQAl34B5xVjK2I/SDZNVGS5tHQ08W");
+        hasWrite.setFullName("Has Write");
+        hasWrite.grantAuthority("resolution:write");
+        hasWrite.grantAuthority("haswrite:write");
+        this.users.save(hasWrite);
 
         User admin = new User("admin","{bcrypt}$2a$10$bTu5ilpT4YILX8dOWM/05efJnoSlX4ElNnjhNopL9aPoRyUgvXAYa");
+        admin.setFullName("Admin adminson");
         admin.grantAuthority("ROLE_ADMIN");
         this.users.save(admin);
     }
