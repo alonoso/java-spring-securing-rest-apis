@@ -27,7 +27,7 @@ public class ResolutionsApplication extends WebSecurityConfigurerAdapter {
                 .mvcMatchers(GET, "/resolutions", "/resolution/**").hasAnyAuthority("resolution:read")
                 .anyRequest().hasAnyAuthority("resolution:write"))
                 .httpBasic(basic -> {})
-                .oauth2ResourceServer(oath2 -> oath2.jwt())
+                .oauth2ResourceServer(oath2 -> oath2.opaqueToken())
                 .cors(cors -> {});
     }
 

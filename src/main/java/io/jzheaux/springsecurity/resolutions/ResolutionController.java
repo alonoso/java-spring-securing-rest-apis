@@ -4,6 +4,7 @@ import org.springframework.security.access.prepost.PostAuthorize;
 import org.springframework.security.access.prepost.PostFilter;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -19,23 +20,23 @@ public class ResolutionController {
 
 	public ResolutionController(ResolutionRepository resolutions, UserRepository users) {
 		this.resolutions = resolutions;
-        this.users = users;
-    }
+		this.users = users;
+	}
 
 	@CrossOrigin(allowCredentials = "true")
 	@PreAuthorize("hasAuthority('resolution:read')")
 	@PostFilter("@post.filter(#root)")
 	@GetMapping("/resolutions")
 	public Iterable<Resolution> read() {
-	    Iterable<Resolution> resolutions = this.resolutions.findAll();
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-	    if(authentication.getAuthorities().contains(new SimpleGrantedAuthority("user:read"))){
-            for (Resolution resolution : resolutions){
-                String fullName = this.users.findByUsername(resolution.getOwner())
-                        .map(User::getFullName).orElse("Anonymous");
-                resolution.setText(resolution.getText() + ", by " + fullName);
-            }
-        }
+		Iterable<Resolution> resolutions = this.resolutions.findAll();
+		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+		if (authentication.getAuthorities().contains(new SimpleGrantedAuthority("user:read"))) {
+			for (Resolution resolution : resolutions) {
+				String fullName = this.users.findByUsername(resolution.getOwner())
+						.map(User::getFullName).orElse("Anonymous");
+				resolution.setText(resolution.getText() + ", by " + fullName);
+			}
+		}
 		return resolutions;
 	}
 
@@ -53,7 +54,7 @@ public class ResolutionController {
 		return this.resolutions.save(resolution);
 	}
 
-	@PutMapping(path="/resolution/{id}/revise")
+	@PutMapping(path = "/resolution/{id}/revise")
 	@PreAuthorize("hasAuthority('resolution:write')")
 	@PostAuthorize("@post.authorize(#root)")
 	@Transactional
@@ -68,5 +69,21 @@ public class ResolutionController {
 	public Optional<Resolution> complete(@PathVariable("id") UUID id) {
 		this.resolutions.complete(id);
 		return read(id);
+	}
+
+	@PreAuthorize("hasAuthority('resolution:share')")
+	@PostAuthorize("@post.authorize(#root)")
+	@PutMapping("/resolution/{id}/share")
+	@Transactional
+	public Optional<Resolution> share(@AuthenticationPrincipal User user, @PathVariable("id") UUID id) {
+		Optional<Resolution> resolution = read(id);
+		resolution
+				.filter(r -> r.getOwner().equals(user.getUsername()))
+				.map(Resolution::getText).ifPresent(text -> {
+			for (User friend : user.getFriends()){
+				make(friend.getUsername(), text);
+			}
+		});
+		return resolution;
 	}
 }
