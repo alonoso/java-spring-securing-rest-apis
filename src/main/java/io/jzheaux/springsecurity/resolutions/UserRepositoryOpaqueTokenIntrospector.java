@@ -45,7 +45,7 @@ public class UserRepositoryOpaqueTokenIntrospector implements OpaqueTokenIntrosp
         return new UserOAuth2AuthenticatedPrincipal(user, principal.getAttributes(), authorities);
     }
 
-   private static class UserOAuth2Authgit add . && git commit -m 'Completed module'enticatedPrincipal extends User implements OAuth2AuthenticatedPrincipal{
+   private static class UserOAuth2AuthenticatedPrincipal extends User implements OAuth2AuthenticatedPrincipal{
        private Map<String, Object> attributes;
        private Collection<GrantedAuthority> authorities;
 
